@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mynvestor - System Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="manifest" href="/manifest.json">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: #454e55; min-height: 100vh; color: #d0d4d6; }
+        .sidebar { position: fixed; left: 0; top: 0; width: 250px; height: 100%; background: #001f3f; transition: all .3s; z-index: 999; }
+        .sidebar-header { padding: 20px; background: #001529; color: #fff; border-bottom: 1px solid #00284f; }
+        .sidebar-menu { list-style: none; padding: 20px 0; }
+        .sidebar-menu li a, .sidebar-footer a { color: #d0d4d6; padding: 15px 25px; display: flex; align-items: center; text-decoration: none; transition: .3s; }
+        .sidebar-menu li a:hover, .sidebar-footer a:hover { background: #00284f; color: #fff; }
+        .sidebar-menu li a.active { background: #003366; color: #fff; }
+        .sidebar-menu li a i { width: 30px; }
+        .sidebar-footer { position: absolute; bottom: 0; width: 100%; padding: 20px; border-top: 1px solid #00284f; }
+        .top-nav { position: fixed; top: 0; left: 250px; right: 0; background: linear-gradient(145deg, #001f3f 0%, #003366 100%); padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; color: #fff; z-index: 1000; box-shadow: 0 2px 6px rgba(0, 0, 0, .2); }
+        .top-nav .company-name { font-size: 1.4rem; font-weight: 700; }
+        .top-nav .profile-pic { width: 40px; height: 40px; border-radius: 50%; overflow: hidden; border: 2px solid #fff; transition: transform .2s; cursor: pointer; }
+        .top-nav .profile-pic:hover { transform: scale(1.1); }
+        .top-nav .profile-initials { width: 100%; height: 100%; background: #28a745; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: 700; }
+        .top-nav .dropdown-menu { background: #2c3034; border: 1px solid #495057; }
+        .top-nav .dropdown-menu a { color: #d0d4d6; }
+        .top-nav .dropdown-menu a:hover { background: #003366; color: #fff; }
+        .content-section { display: none; padding: 20px; min-height: calc(100vh - 60px); opacity: 0; transform: translateY(20px); transition: all .5s ease; margin-left: 250px; }
+        .content-section.active { display: block; opacity: 1; transform: translateY(0); }
+        .card { background: #2c3034; border: 1px solid #495057; border-radius: 8px; margin-bottom: .5rem; }
+        .card-body { padding: .75rem; }
+        .card h2, .card h3, .card h5 { color: #fff; }
+        .modal-content.bg-dark { background: #2c3034; color: #fff; border: 1px solid #495057; }
+        .modal-content.bg-dark .modal-header, .modal-content.bg-dark .modal-footer { border-color: #495057; padding: .75rem; }
+        .modal-content.bg-dark .btn-close { filter: invert(1); }
+        .jon { color: #24ac44; }
+        .chart-card { background: #2c3034; border: 1px solid #495057; border-radius: 8px; padding: 15px; margin-bottom: .5rem; }
+        .chart-card canvas { height: 200px !important; }
+        .table-dark { background: #2c3034; border: 1px solid #495057; }
+        .table-dark th { background: #212529; color: #fff; }
+        .table-dark td { color: #d0d4d6; }
+        .btn-primary { background: linear-gradient(145deg, #17a2b8 0%, #138496 100%); border: none; color: #fff; }
+        .btn-primary:hover { background: linear-gradient(145deg, #138496 0%, #117a8b 100%); }
+        .btn-sm { padding: .25rem .5rem; font-size: .85rem; }
+        .btn-danger { background: #dc3545; border: none; }
+        .btn-danger:hover { background: #c82333; }
+        .text-muted { color: #adb5bd !important; }
+        .fw-bold { color: #d0d4d6; }
+        .text-success { color: #28a745 !important; }
+        .text-danger { color: #dc3545 !important; }
+        .badge { padding: .5em .75em; border-radius: 20px; font-size: .85rem; color: #fff; }
+        .bg-success { background: #28a745 !important; }
+        .bg-warning { background: #ffc107 !important; }
+        .bg-danger { background: #dc3545 !important; }
+        .error-message { color: #dc3545; font-size: 0.85rem; display: none; margin-top: 0.25rem; }
+        .form-control.bg-dark, .form-select.bg-dark { background: #2c3034; border: 1px solid #495057; color: #fff; }
+        .form-control.bg-dark:focus, .form-select.bg-dark:focus { background: #2c3034; border-color: #28a745; box-shadow: none; color: #fff; }
+        .language-toggle { cursor: pointer; color: #17a2b8; }
+        .language-toggle:hover { color: #138496; }
+        .alert { background: #2c3034; border: 1px solid #495057; color: #d0d4d6; }
+        .alert-success { background: #28a745; color: #fff; }
+        @media (max-width: 768px) {
+            .sidebar { left: -250px; }
+            .sidebar.active { left: 0; }
+            .top-nav { left: 0; }
+            .content-section { margin-left: 0; }
+            .notifications-icon { display: block; cursor: pointer; padding: 8px; color: #fff; font-size: 24px; }
+            .chart-card canvas { height: 150px !important; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="top-nav">
+        <div class="company-name"><span class="jon">Myn</span>vestor - System Admin</div>
+        <div class="d-flex align-items-center gap-3">
+            <span class="language-toggle" onclick="toggleLanguage()">English <i class="bi bi-globe"></i></span>
+            <div class="profile-dropdown">
+                <div class="profile-pic" id="profile-pic-container" data-bs-toggle="dropdown" aria-expanded="false">
+                    <div class="profile-initials" id="user-initials">AD</div>
+                </div>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="#settings"><i class="bi bi-person me-2"></i>Profile</a></li>
+                    <li><a class="dropdown-item" href="admin_login.html"><i class="bi bi-box-arrow-left me-2"></i>Log Out</a></li>
+                </ul>
+            </div>
+        </div>
+        <i class="bi bi-list notifications-icon d-md-none" aria-label="Open Menu"></i>
+    </nav>
+    <div class="sidebar">
+        <div class="sidebar-header"><h5><i class="bi bi-shield-lock me-2"></i>Admin Platform</h5></div>
+        <ul class="sidebar-menu">
+            <li><a href="#dashboard" aria-label="Dashboard"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a></li>
+            <li><a href="#brokers" aria-label="Broker Management"><i class="bi bi-person-workspace me-2"></i>Brokers</a></li>
+            <li><a href="#investors" aria-label="Investor Management"><i class="bi bi-people me-2"></i>Investors</a></li>
+            <li><a href="#analytics" aria-label="Analytics"><i class="bi bi-graph-up me-2"></i>Analytics</a></li>
+            <li><a href="#settings" aria-label="Platform Settings"><i class="bi bi-gear me-2"></i>Settings</a></li>
+            <li><a href="#notifications" aria-label="Notifications"><i class="bi bi-bell me-2"></i>Notifications</a></li>
+        </ul>
+        <div class="sidebar-footer"><a href="admin_login.html" aria-label="Log Out"><i class="bi bi-box-arrow-left me-2"></i>Log Out</a></div>
+    </div>
+
+    <!-- Dashboard Section -->
+    <section id="dashboard" class="content-section">
+        <h1 class="mb-2"><i class="bi bi-speedometer2 me-2"></i>Dashboard</h1>
+        <div class="card mb-2">
+            <div class="card-body">
+                <h2 class="mb-2"><i class="bi bi-pie-chart me-2"></i>Platform Overview</h2>
+                <div class="row">
+                    <div class="col-md-3"><small class="text-muted d-block"><i class="bi bi-people me-1"></i>Active Investors</small><span class="fw-bold">1,245</span></div>
+                    <div class="col-md-3"><small class="text-muted d-block"><i class="bi bi-person-workspace me-1"></i>Active Brokers</small><span class="fw-bold">3</span></div>
+                    <div class="col-md-3"><small class="text-muted d-block"><i class="bi bi-currency-exchange me-1"></i>Trading Volume</small><span class="fw-bold">MK 15.2M</span></div>
+                    <div class="col-md-3"><small class="text-muted d-block"><i class="bi bi-wallet me-1"></i>Revenue</small><span class="fw-bold">MK 750,000</span></div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="chart-card">
+                    <h3><i class="bi bi-line-chart me-2"></i>User Growth</h3>
+                    <canvas id="userGrowthChart"></canvas>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="chart-card">
+                    <h3><i class="bi bi-bar-chart me-2"></i>Revenue Breakdown</h3>
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body">
+                <h2 class="mb-2"><i class="bi bi-bell me-2"></i>Recent Activity</h2>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item bg-dark">Broker "MSE Broker 1" onboarded 50 new clients.</li>
+                    <li class="list-group-item bg-dark">Investor "John Doe" submitted KYC.</li>
+                    <li class="list-group-item bg-dark">Platform earned MK 10,000 from subscriptions.</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Broker Management Section -->
+    <section id="brokers" class="content-section">
+        <h1 class="mb-2"><i class="bi bi-person-workspace me-2"></i>Broker Management</h1>
+        <div class="card mb-2">
+            <div class="card-body">
+                <h2 class="mb-2"><i class="bi bi-plus-circle me-2"></i>Onboard New Broker</h2>
+                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#onboardBrokerModal"><i class="bi bi-person-plus me-1"></i>Add Broker</button>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body">
+                <h2 class="mb-2"><i class="bi bi-list-ul me-2"></i>Active Brokers</h2>
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover">
+                        <thead>
+                            <tr><th>Name</th><th>Clients</th><th>Orders Processed</th><th>Revenue Share</th><th>Status</th><th>Actions</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>MSE Broker 1</td><td>500</td><td>1,200</td><td>30%</td><td><span class="badge bg-success">Active</span></td>
+                                <td>
+                                    <button class="btn btn-primary btn-sm me-1" onclick="configureBroker('MSE Broker 1')"><i class="bi bi-gear"></i></button>
+                                    <button class="btn btn-danger btn-sm" onclick="deactivateBroker('MSE Broker 1')"><i class="bi bi-x-circle"></i></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>MSE Broker 2</td><td>300</td><td>800</td><td>25%</td><td><span class="badge bg-success">Active</span></td>
+                                <td>
+                                    <button class="btn btn-primary btn-sm me-1" onclick="configureBroker('MSE Broker 2')"><i class="bi bi-gear"></i></button>
+                                    <button class="btn btn-danger btn-sm" onclick="deactivateBroker('MSE Broker 2')"><i class="bi bi-x-circle"></i></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Investor Management Section -->
+    <section id="investors" class="content-section">
+        <h1 class="mb-2"><i class="bi bi-people me-2"></i>Investor Management</h1>
+        <div class="card">
+            <div class="card-body">
+                <h2 class="mb-2"><i class="bi bi-list-ul me-2"></i>All Investors</h2>
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover">
+                        <thead>
+                            <tr><th>Name</th><th>Email</th><th>KYC Status</th><th>Balance</th><th>Status</th><th>Actions</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>John Doe</td><td>john.doe@example.com</td><td><span class="badge bg-warning">Pending</span></td><td>MK 50,000</td><td><span class="badge bg-success">Active</span></td>
+                                <td>
+                                    <button class="btn btn-primary btn-sm me-1" onclick="viewInvestor('John Doe')"><i class="bi bi-eye"></i></button>
+                                    <button class="btn btn-danger btn-sm" onclick="banInvestor('John Doe')"><i class="bi bi-ban"></i></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Jane Smith</td><td>jane.smith@example.com</td><td><span class="badge bg-success">Verified</span></td><td>MK 120,000</td><td><span class="badge bg-success">Active</span></td>
+                                <td>
+                                    <button class="btn btn-primary btn-sm me-1" onclick="viewInvestor('Jane Smith')"><i class="bi bi-eye"></i></button>
+                                    <button class="btn btn-danger btn-sm" onclick="banInvestor('Jane Smith')"><i class="bi bi-ban"></i></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="card mt-2">
+            <div class="card-body">
+                <h2 class="mb-2"><i class="bi bi-exclamation-triangle me-2"></i>Flagged Accounts</h2>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item bg-dark">John Doe: Multiple failed login attempts.</li>
+                    <li class="list-group-item bg-dark">Jane Smith: Suspicious high-volume withdrawal.</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Analytics Section -->
+    <section id="analytics" class="content-section">
+        <h1 class="mb-2"><i class="bi bi-graph-up me-2"></i>Analytics</h1>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="chart-card">
+                    <h3><i class="bi bi-line-chart me-2"></i>Trading Volume</h3>
+                    <canvas id="tradingVolumeChart"></canvas>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="chart-card">
+                    <h3><i class="bi bi-pie-chart me-2"></i>Broker Performance</h3>
+                    <canvas id="brokerPerformanceChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body">
+                <h2 class="mb-2"><i class="bi bi-download me-2"></i>Export Reports</h2>
+                <button class="btn btn-primary btn-sm me-2"><i class="bi bi-filetype-csv me-1"></i>Export CSV</button>
+                <button class="btn btn-primary btn-sm"><i class="bi bi-filetype-pdf me-1"></i>Export PDF</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Platform Settings Section -->
+    <section id="settings" class="content-section">
+        <h1 class="mb-2"><i class="bi bi-gear me-2"></i>Platform Settings</h1>
+        <div class="card mb-2">
+            <div class="card-body">
+                <h2 class="mb-2"><i class="bi bi-currency-exchange me-2"></i>Transaction Fees</h2>
+                <form id="feeForm">
+                    <div class="mb-3">
+                        <label for="buyFee" class="form-label">Buy Order Fee (%)</label>
+                        <input type="number" class="form-control bg-dark" id="buyFee" value="0.5" step="0.1" min="0" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="sellFee" class="form-label">Sell Order Fee (%)</label>
+                        <input type="number" class="form-control bg-dark" id="sellFee" value="0.5" step="0.1" min="0" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-check-circle me-1"></i>Save Fees</button>
+                </form>
+            </div>
+        </div>
+        <div class="card mb-2">
+            <div class="card-body">
+                <h2 class="mb-2"><i class="bi bi-credit-card me-2"></i>Payment Methods</h2>
+                <form id="paymentForm">
+                    <div class="mb-3">
+                        <label class="form-label">Supported Methods</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="airtel" checked>
+                            <label class="form-check-label" for="airtel">Airtel Money</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="tnm" checked>
+                            <label class="form-check-label" for="tnm">TNM Mpamba</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="bank" checked>
+                            <label class="form-check-label" for="bank">Bank Transfer</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="card" checked>
+                            <label class="form-check-label" for="card">Credit/Debit Card</label>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-check-circle me-1"></i>Save Methods</button>
+                </form>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body">
+                <h2 class="mb-2"><i class="bi bi-book me-2"></i>Educational Resources</h2>
+                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addResourceModal"><i class="bi bi-plus-circle me-1"></i>Add Resource</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Notifications Section -->
+    <section id="notifications" class="content-section">
+        <h1 class="mb-2"><i class="bi bi-bell me-2"></i>Notifications</h1>
+        <div class="card mb-2">
+            <div class="card-body">
+                <h2 class="mb-2"><i class="bi bi-envelope me-2"></i>Send Announcement</h2>
+                <form id="notificationForm">
+                    <div class="mb-3">
+                        <label for="notificationTitle" class="form-label">Title</label>
+                        <input type="text" class="form-control bg-dark" id="notificationTitle" placeholder="Enter title" required>
+                        <div class="error-message" id="notificationTitleError">Please enter a title.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="notificationMessage" class="form-label">Message</label>
+                        <textarea class="form-control bg-dark" id="notificationMessage" rows="4" placeholder="Enter message" required></textarea>
+                        <div class="error-message" id="notificationMessageError">Please enter a message.</div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-send me-1"></i>Send</button>
+                </form>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body">
+                <h2 class="mb-2"><i class="bi bi-clock-history me-2"></i>Admin Activity Logs</h2>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item bg-dark">Admin "Founder" updated transaction fees.</li>
+                    <li class="list-group-item bg-dark">Admin "Founder" onboarded "MSE Broker 3".</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Onboard Broker Modal -->
+    <div class="modal fade" id="onboardBrokerModal" tabindex="-1" aria-labelledby="onboardBrokerModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content bg-dark">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="onboardBrokerModalLabel"><i class="bi bi-person-plus me-2"></i>Onboard New Broker</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="onboardBrokerForm">
+                        <div class="mb-3">
+                            <label for="brokerName" class="form-label">Broker Name</label>
+                            <input type="text" class="form-control bg-dark" id="brokerName" placeholder="Enter broker name" required>
+                            <div class="error-message" id="brokerNameError">Please enter a valid name.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="brokerEmail" class="form-label">Email</label>
+                            <input type="email" class="form-control bg-dark" id="brokerEmail" placeholder="Enter email" required>
+                            <div class="error-message" id="brokerEmailError">Please enter a valid email.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="brokerLogo" class="form-label">Upload Logo</label>
+                            <input type="file" class="form-control bg-dark" id="brokerLogo" accept=".png,.jpg" required>
+                            <div class="error-message" id="brokerLogoError">Please upload a valid image.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="brokerColor" class="form-label">Primary Color</label>
+                            <input type="color" class="form-control bg-dark" id="brokerColor" value="#17a2b8" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="revenueShare" class="form-label">Revenue Share (%)</label>
+                            <input type="number" class="form-control bg-dark" id="revenueShare" min="0" max="100" value="30" required>
+                            <div class="error-message" id="revenueShareError">Please enter a value between 0 and 100.</div>
+                        </div>
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-check-circle me-1"></i>Save Broker</button>
+                    </form>
+                    <div class="progress mt-3" role="progressbar" aria-label="Onboarding progress" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">
+                        <div class="progress-bar bg-success" style="width: 50%;">50%</div>
+                    </div>
+                    <p class="text-muted mt-2">Step 1 of 2: Enter broker details. Next: Configure settings.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Resource Modal -->
+    <div class="modal fade" id="addResourceModal" tabindex="-1" aria-labelledby="addResourceModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content bg-dark">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addResourceModalLabel"><i class="bi bi-book me-2"></i>Add Educational Resource</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addResourceForm">
+                        <div class="mb-3">
+                            <label for="resourceTitle" class="form-label">Title</label>
+                            <input type="text" class="form-control bg-dark" id="resourceTitle" placeholder="Enter title" required>
+                            <div class="error-message" id="resourceTitleError">Please enter a title.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="resourceFile" class="form-label">Upload Resource</label>
+                            <input type="file" class="form-control bg-dark" id="resourceFile" accept=".pdf,.mp4" required>
+                            <div class="error-message" id="resourceFileError">Please upload a valid file.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="resourcePrice" class="form-label">Price (MK)</label>
+                            <input type="number" class="form-control bg-dark" id="resourcePrice" min="0" value="0" required>
+                            <div class="error-message" id="resourcePriceError">Please enter a valid price.</div>
+                        </div>
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-check-circle me-1"></i>Add Resource</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const sidebarLinks = document.querySelectorAll('.sidebar-menu a');
+        const contentSections = document.querySelectorAll('.content-section');
+        const notificationsIcon = document.querySelector('.notifications-icon');
+        const sidebar = document.querySelector('.sidebar');
+
+        function showSection(sectionId) {
+            contentSections.forEach(section => section.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+            sidebarLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${sectionId}`) link.classList.add('active');
+            });
+            if (window.innerWidth <= 768) sidebar.classList.remove('active');
+        }
+
+        sidebarLinks.forEach(link => link.addEventListener('click', e => {
+            e.preventDefault();
+            showSection(link.getAttribute('href').substring(1));
+        }));
+
+        notificationsIcon.addEventListener('click', () => sidebar.classList.toggle('active'));
+
+        // Simulate admin data
+        const admin = JSON.parse(sessionStorage.getItem('adminLogin') || '{}');
+        document.getElementById('user-initials').textContent = admin.username ? admin.username.slice(0, 2).toUpperCase() : 'AD';
+
+        // Charts
+        const userGrowthChart = document.getElementById('userGrowthChart');
+        if (userGrowthChart) {
+            new Chart(userGrowthChart, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr'],
+                    datasets: [{
+                        label: 'Active Investors',
+                        data: [500, 800, 1000, 1245],
+                        borderColor: '#28a745',
+                        backgroundColor: 'rgba(40, 167, 69, 0.2)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { labels: { color: '#d0d4d6' } } },
+                    scales: { x: { ticks: { color: '#d0d4d6' }, grid: { color: '#495057' } }, y: { ticks: { color: '#d0d4d6' }, grid: { color: '#495057' } } }
+                }
+            });
+        }
+
+        const revenueChart = document.getElementById('revenueChart');
+        if (revenueChart) {
+            new Chart(revenueChart, {
+                type: 'bar',
+                data: {
+                    labels: ['Subscriptions', 'Fees', 'Resources'],
+                    datasets: [{
+                        label: 'Revenue (MK)',
+                        data: [300000, 400000, 50000],
+                        backgroundColor: ['#28a745', '#17a2b8', '#ffc107'],
+                        borderColor: ['#28a745', '#17a2b8', '#ffc107'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { labels: { color: '#d0d4d6' } } },
+                    scales: { x: { ticks: { color: '#d0d4d6' }, grid: { color: '#495057' } }, y: { ticks: { color: '#d0d4d6' }, grid: { color: '#495057' } } }
+                }
+            });
+        }
+
+        const tradingVolumeChart = document.getElementById('tradingVolumeChart');
+        if (tradingVolumeChart) {
+            new Chart(tradingVolumeChart, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr'],
+                    datasets: [{
+                        label: 'Trading Volume (MK)',
+                        data: [5000000, 8000000, 12000000, 15200000],
+                        borderColor: '#17a2b8',
+                        backgroundColor: 'rgba(23, 162, 184, 0.2)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { labels: { color: '#d0d4d6' } } },
+                    scales: { x: { ticks: { color: '#d0d4d6' }, grid: { color: '#495057' } }, y: { ticks: { color: '#d0d4d6' }, grid: { color: '#495057' } } }
+                }
+            });
+        }
+
+        const brokerPerformanceChart = document.getElementById('brokerPerformanceChart');
+        if (brokerPerformanceChart) {
+            new Chart(brokerPerformanceChart, {
+                type: 'pie',
+                data: {
+                    labels: ['MSE Broker 1', 'MSE Broker 2', 'MSE Broker 3'],
+                    datasets: [{
+                        label: 'Orders Processed',
+                        data: [1200, 800, 600],
+                        backgroundColor: ['#28a745', '#17a2b8', '#ffc107'],
+                        borderColor: ['#28a745', '#17a2b8', '#ffc107'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { labels: { color: '#d0d4d6' } } }
+                }
+            });
+        }
+
+        // Form Handlers
+        document.getElementById('onboardBrokerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const brokerName = document.getElementById('brokerName').value.trim();
+            const brokerEmail = document.getElementById('brokerEmail').value.trim();
+            const brokerLogo = document.getElementById('brokerLogo').files[0];
+            const brokerColor = document.getElementById('brokerColor').value;
+            const revenueShare = document.getElementById('revenueShare').value;
+
+            const brokerNameError = document.getElementById('brokerNameError');
+            const brokerEmailError = document.getElementById('brokerEmailError');
+            const brokerLogoError = document.getElementById('brokerLogoError');
+            const revenueShareError = document.getElementById('revenueShareError');
+
+            brokerNameError.style.display = 'none';
+            brokerEmailError.style.display = 'none';
+            brokerLogoError.style.display = 'none';
+            revenueShareError.style.display = 'none';
+
+            let isValid = true;
+
+            if (brokerName.length < 3) {
+                brokerNameError.style.display = 'block';
+                isValid = false;
+            }
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(brokerEmail)) {
+                brokerEmailError.style.display = 'block';
+                isValid = false;
+            }
+            if (!brokerLogo || !['image/png', 'image/jpeg'].includes(brokerLogo.type)) {
+                brokerLogoError.style.display = 'block';
+                isValid = false;
+            }
+            if (revenueShare < 0 || revenueShare > 100) {
+                revenueShareError.style.display = 'block';
+                isValid = false;
+            }
+
+            if (isValid) {
+                console.log('Broker Onboarded:', { brokerName, brokerEmail, brokerLogo, brokerColor, revenueShare });
+                alert('Broker onboarded successfully!');
+                const modal = bootstrap.Modal.getInstance(document.getElementById('onboardBrokerModal'));
+                modal.hide();
+            }
+        });
+
+        document.getElementById('feeForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const buyFee = document.getElementById('buyFee').value;
+            const sellFee = document.getElementById('sellFee').value;
+            console.log('Fees Updated:', { buyFee, sellFee });
+            alert('Transaction fees updated successfully!');
+        });
+
+        document.getElementById('paymentForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const methods = {
+                airtel: document.getElementById('airtel').checked,
+                tnm: document.getElementById('tnm').checked,
+                bank: document.getElementById('bank').checked,
+                card: document.getElementById('card').checked
+            };
+            console.log('Payment Methods Updated:', methods);
+            alert('Payment methods updated successfully!');
+        });
+
+        document.getElementById('notificationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const title = document.getElementById('notificationTitle').value.trim();
+            const message = document.getElementById('notificationMessage').value.trim();
+
+            const titleError = document.getElementById('notificationTitleError');
+            const messageError = document.getElementById('notificationMessageError');
+
+            titleError.style.display = 'none';
+            messageError.style.display = 'none';
+
+            let isValid = true;
+
+            if (title.length < 3) {
+                titleError.style.display = 'block';
+                isValid = false;
+            }
+            if (message.length < 10) {
+                messageError.style.display = 'block';
+                isValid = false;
+            }
+
+            if (isValid) {
+                console.log('Notification Sent:', { title, message });
+                alert('Notification sent successfully!');
+                document.getElementById('notificationForm').reset();
+            }
+        });
+
+        document.getElementById('addResourceForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const title = document.getElementById('resourceTitle').value.trim();
+            const file = document.getElementById('resourceFile').files[0];
+            const price = document.getElementById('resourcePrice').value;
+
+            const titleError = document.getElementById('resourceTitleError');
+            const fileError = document.getElementById('resourceFileError');
+            const priceError = document.getElementById('resourcePriceError');
+
+            titleError.style.display = 'none';
+            fileError.style.display = 'none';
+            priceError.style.display = 'none';
+
+            let isValid = true;
+
+            if (title.length < 3) {
+                titleError.style.display = 'block';
+                isValid = false;
+            }
+            if (!file || !['application/pdf', 'video/mp4'].includes(file.type)) {
+                fileError.style.display = 'block';
+                isValid = false;
+            }
+            if (price < 0) {
+                priceError.style.display = 'block';
+                isValid = false;
+            }
+
+            if (isValid) {
+                console.log('Resource Added:', { title, file, price });
+                alert('Resource added successfully!');
+                const modal = bootstrap.Modal.getInstance(document.getElementById('addResourceModal'));
+                modal.hide();
+            }
+        });
+
+        // Placeholder functions
+        function configureBroker(name) { alert(`Configure settings for ${name}`); }
+        function deactivateBroker(name) { alert(`Deactivate ${name}`); }
+        function viewInvestor(name) { alert(`View details for ${name}`); }
+        function banInvestor(name) { alert(`Ban ${name}`); }
+
+        // Language toggle (placeholder)
+        function toggleLanguage() { alert('Switch to Chichewa (placeholder)'); }
+
+        showSection('dashboard');
+    </script>
+</body>
+</html>
