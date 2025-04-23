@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mynvestor - Your Trading Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background: #454e55;
+            color: #d0d4d6;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: #001f3f;
+            padding: 15px 20px;
+            border-bottom: 1px solid #00284f;
+        }
+
+        .navbar-brand .company-name {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .navbar-brand .jon {
+            color: #24ac44;
+        }
+
+        .nav-link {
+            color: #d0d4d6 !important;
+            transition: color 0.2s;
+        }
+
+        .nav-link:hover {
+            color: #fff !important;
+        }
+
+        .hero-section {
+            background: linear-gradient(145deg, #2c3034 0%, #1a1e22 100%);
+            padding: 80px 20px;
+            text-align: center;
+            border-bottom: 1px solid #495057;
+        }
+
+        .hero-section h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .hero-section p {
+            font-size: 1.2rem;
+            color: #adb5bd;
+            margin-bottom: 2rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(145deg, #17a2b8 0%, #138496 100%);
+            border: none;
+            color: #fff;
+            font-weight: 500;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 12px 24px;
+            transition: background 0.2s;
+            font-size: 1.1rem;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(145deg, #138496 0%, #117a8b 100%);
+        }
+
+        .features-section, .benefits-section, .testimonials-section, .cta-section {
+            padding: 60px 20px;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .feature-card, .testimonial-card {
+            background: #001f3f;
+            border: 1px solid #495057;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: transform 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .feature-card:hover, .testimonial-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-card i {
+            font-size: 2rem;
+            color: #28a745;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3, .testimonial-card h5 {
+            color: #fff;
+            font-size: 1.25rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .feature-card p, .testimonial-card p {
+            color: #adb5bd;
+            font-size: 0.95rem;
+        }
+
+        .testimonials-section {
+            background: #2c3034;
+            border-top: 1px solid #495057;
+            border-bottom: 1px solid #495057;
+        }
+
+        .cta-section {
+            text-align: center;
+            background: #001f3f;
+            border-radius: 12px;
+            margin: 0 auto;
+            max-width: 600px;
+            padding: 40px;
+        }
+
+        .cta-section h2 {
+            font-size: 2rem;
+            color: #fff;
+            margin-bottom: 1.5rem;
+        }
+
+        footer {
+            background: #001f3f;
+            color: #adb5bd;
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid #00284f;
+        }
+
+        footer a {
+            color: #17a2b8;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        footer a:hover {
+            color: #138496;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .hero-section h1 {
+                font-size: 2rem;
+            }
+
+            .hero-section p {
+                font-size: 1rem;
+            }
+
+            .section-title {
+                font-size: 1.8rem;
+            }
+
+            .feature-card h3, .testimonial-card h5 {
+                font-size: 1.1rem;
+            }
+
+            .cta-section {
+                padding: 30px;
+            }
+
+            .cta-section h2 {
+                font-size: 1.8rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .hero-section {
+                padding: 60px 15px;
+            }
+
+            .features-section, .benefits-section, .testimonials-section, .cta-section {
+                padding: 40px 15px;
+            }
+
+            .btn-primary {
+                padding: 10px 20px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="#"><span class="company-name"><span class="jon">Myn</span>vestor</span></a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="#features">Features</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#benefits">Benefits</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#testimonials">Testimonials</a></li>
+                    <li class="nav-item"><a class="nav-link" href="login.html">Sign In</a></li>
+                    <li class="nav-item"><a class="nav-link btn btn-primary ms-2 text-white" href="login.html">Get Started</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <h1>Trade Smarter with Mynvestor</h1>
+            <p>Your all-in-one platform for trading on the Malawi Stock Exchange, designed for beginners and seasoned traders alike.</p>
+            <a href="login.html" class="btn btn-primary"><i class="bi bi-rocket-takeoff me-2"></i>Start Trading Today</a>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features-section">
+        <div class="container">
+            <h2 class="section-title">Why Choose Mynvestor?</h2>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <i class="bi bi-grid"></i>
+                        <h3>User-Friendly Interface</h3>
+                        <p>Navigate effortlessly with an intuitive design, perfect for beginners and pros.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <i class="bi bi-bar-chart-line"></i>
+                        <h3>Advanced Charting Tools</h3>
+                        <p>Access powerful technical analysis and real-time charts to make informed decisions.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <i class="bi bi-building"></i>
+                        <h3>Malawi Stock Exchange</h3>
+                        <p>Trade stocks like AIRTEL, NBM, and ILLOVO with direct market access.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <i class="bi bi-wallet2"></i>
+                        <h3>Competitive Fees</h3>
+                        <p>Low 0.1% commission and transparent pricing keep your costs down.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <i class="bi bi-book"></i>
+                        <h3>Educational Resources</h3>
+                        <p>Learn with tutorials, webinars, and guides tailored for all skill levels.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <i class="bi bi-shield-lock"></i>
+                        <h3>Robust Security</h3>
+                        <p>Your data and funds are protected with advanced encryption and 2FA.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Benefits Section -->
+    <section id="benefits" class="benefits-section">
+        <div class="container">
+            <h2 class="section-title">Benefits for Every Trader</h2>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="feature-card">
+                        <h3>For Beginners</h3>
+                        <ul class="list-unstyled">
+                            <li><i class="bi bi-check-circle-fill text-success me-2"></i>Simple portfolio tracking</li>
+                            <li><i class="bi bi-check-circle-fill text-success me-2"></i>Guided trading process</li>
+                            <li><i class="bi bi-check-circle-fill text-success me-2"></i>Free educational content</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="feature-card">
+                        <h3>For Experienced Traders</h3>
+                        <ul class="list-unstyled">
+                            <li><i class="bi bi-check-circle-fill text-success me-2"></i>Advanced technical indicators (RSI, MACD)</li>
+                            <li><i class="bi bi-check-circle-fill text-success me-2"></i>Real-time market data</li>
+                            <li><i class="bi bi-check-circle-fill text-success me-2"></i>Customizable trading strategies</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="testimonials-section">
+        <div class="container">
+            <h2 class="section-title">What Our Users Say</h2>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="testimonial-card">
+                        <h5>Chisomo M.</h5>
+                        <p>"As a beginner, Mynvestor's easy interface and tutorials helped me start trading confidently."</p>
+                        <small class="text-muted">New Investor, Lilongwe</small>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="testimonial-card">
+                        <h5>James K.</h5>
+                        <p>"The charting tools are top-notch, and the low fees make day trading profitable."</p>
+                        <small class="text-muted">Day Trader, Blantyre</small>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="testimonial-card">
+                        <h5>Mary T.</h5>
+                        <p>"I feel secure knowing my funds are protected, and the support team is always helpful."</p>
+                        <small class="text-muted">Investor, Zomba</small>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center mt-4">
+                <p class="text-muted">Trusted by <strong>10,000+</strong> users across Malawi</p>
+                <p class="text-muted">Certified by the Malawi Stock Exchange and Reserve Bank of Malawi</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <h2>Join Mynvestor Today</h2>
+        <p class="text-muted mb-4">Start trading with confidence on Malawi's leading investment platform.</p>
+        <a href="login.html" class="btn btn-primary"><i class="bi bi-person-plus me-2"></i>Create Your Free Account</a>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2025 Mynvestor. All rights reserved.</p>
+        <p><a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a> | <a href="index1.html#help">Contact Support</a></p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Smooth scrolling for nav links
+        document.querySelectorAll('.nav-link').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                if (this.getAttribute('href').startsWith('#')) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href').substring(1);
+                    const targetElement = document.getElementById(targetId);
+                    if (targetElement) {
+                        window.scrollTo({
+                            top: targetElement.offsetTop - 70,
+                            behavior: 'smooth'
+                        });
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
